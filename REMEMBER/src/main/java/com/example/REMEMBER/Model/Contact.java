@@ -7,39 +7,40 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+/*
+@Data annotation is provided by Lombok library which generates getter, setter,
+equals(), hashCode(), toString() methods & Constructor at compile time.
+This makes our code short and clean.
+* */
 @Data
-public class Contact {
+public class Contact extends BaseEntity{
 
- /*  This class represents a contact message with fields for name, mobile number, email, subject, and message.
-    It includes validation annotations to ensure that the fields are not blank, have appropriate sizes,
-    and that the email is in a valid format. The mobile number must contain only digits and be within a specified length.
-    The class uses Lombok's @Data annotation to automatically generate getters, setters, and other utility methods.
-    The validation annotations are from the Jakarta Bean Validation API, which is commonly used in Spring applications
-    to validate user input in web forms.
+    private int contactId;
 
-  */
+    /*
+    * @NotNull: Checks if a given field is not null but allows empty values & zero elements inside collections.
+      @NotEmpty: Checks if a given field is not null and its size/length is greater than zero.
+      @NotBlank: Checks if a given field is not null and trimmed length is greater than zero.
+    * */
+    @NotBlank(message="Name must not be blank")
+    @Size(min=3, message="Name must be at least 3 characters long")
+    private String name;
 
+    @NotBlank(message="Mobile number must not be blank")
+    @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
+    private String mobileNum;
 
-    @NotBlank(message = "Name is required")
-    @Size(min=4 , max = 30 , message = "Name must be between 4 and 30 characters")
-    public String name;
+    @NotBlank(message="Email must not be blank")
+    @Email(message = "Please provide a valid email address" )
+    private String email;
 
-    @NotBlank(message = "Mobile number is required")
-    @Size(min=10, max=15, message = "Mobile number must be between 10 and 15 digits")
-    @Pattern(regexp = "^[0-9]+$", message = "Mobile number must contain only digits")
-    public String mobileNum;
+    @NotBlank(message="Subject must not be blank")
+    @Size(min=5, message="Subject must be at least 5 characters long")
+    private String subject;
 
+    @NotBlank(message="Message must not be blank")
+    @Size(min=10, message="Message must be at least 10 characters long")
+    private String message;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
-    public String email;
-
-    @NotBlank(message = "Subject is required")
-    @Size(min=4, max=50, message = "Subject must be between 4 and 50 characters")
-    public String subject;
-
-    @NotBlank(message = "Message is required")
-    @Size(min=10, max=500, message = "Message must be between 10 and 500 characters")
-    public String message;
-
+    private String status;
 }
