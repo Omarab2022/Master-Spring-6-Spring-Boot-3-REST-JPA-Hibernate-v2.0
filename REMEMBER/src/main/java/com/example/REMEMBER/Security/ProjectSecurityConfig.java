@@ -1,6 +1,6 @@
 package com.example.REMEMBER.Security;
 
-
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -13,42 +13,34 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class ProjectSecurityConfig {
 
-
-//    @Bean
-//    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
-//
-//        http.authorizeHttpRequests((requests)->requests.anyRequest().permitAll() )
-//                .formLogin(Customizer.withDefaults())
-//                .httpBasic(Customizer.withDefaults());
-//
-//           return     http.build();
-//    }
-
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
 
         http.authorizeHttpRequests(requests-> requests
                         .requestMatchers("/dashboard").authenticated()
-                .requestMatchers("/","/home").permitAll()
-                .requestMatchers("/holidays/**").permitAll()
-                .requestMatchers("/contact").permitAll()
-                .requestMatchers("/saveMsg").permitAll()
-                .requestMatchers("/courses").permitAll()
-                .requestMatchers("/about").permitAll()
-                .requestMatchers("/assets/**").permitAll())
-                .formLogin(loginconfigurer -> loginconfigurer.loginPage("/login").defaultSuccessUrl("/dashboard")
+                        .requestMatchers("/","/home").permitAll()
+                        .requestMatchers("/holidays/**").permitAll()
+                        .requestMatchers("/contact").permitAll()
+                        .requestMatchers("/saveMsg").permitAll()
+                        .requestMatchers("/courses").permitAll()
+                        .requestMatchers("/about").permitAll()
+                        .requestMatchers("/assets/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll() // Updated H2 console access
+                        .requestMatchers(PathRequest.toH2Console()).permitAll() )
+                .formLogin(loginconfigurer -> loginconfigurer.loginPage("/login")
+                        .defaultSuccessUrl("/dashboard", true)
                         .failureUrl("/login?error=true").permitAll()
-                        ).logout(logoutconfigurer -> logoutconfigurer.logoutSuccessUrl("/login?logout=true")
+                ).logout(logoutconfigurer -> logoutconfigurer.logoutSuccessUrl("/login?logout=true")
                         .invalidateHttpSession(true).permitAll())
                 .httpBasic(form->form.disable())
-                .csrf(csrf -> csrf.disable());
+                .csrf(csrf-> csrf
+                        .ignoringRequestMatchers("/saveMsg")
+                        .ignoringRequestMatchers("/h2-console/**") // Updated CSRF exemption
+                        .ignoringRequestMatchers(PathRequest.toH2Console()))
+                .headers(headers -> headers.frameOptions().sameOrigin()); // Allow H2 console frames
 
-
-        return     http.build();
+        return http.build();
     }
-
-
-
 
     /**
      * This method creates an in-memory user details manager with two users:
@@ -57,7 +49,6 @@ public class ProjectSecurityConfig {
      *
      * @return An InMemoryUserDetailsManager containing the defined users.
      */
-
     @Bean
     public InMemoryUserDetailsManager userDetailsService(){
 
@@ -74,6 +65,5 @@ public class ProjectSecurityConfig {
                 .build();
 
         return new InMemoryUserDetailsManager(user, admin);
-
     }
 }

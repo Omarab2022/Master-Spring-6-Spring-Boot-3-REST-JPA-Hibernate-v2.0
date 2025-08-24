@@ -23,6 +23,8 @@ public class ViewControllerConfig implements WebMvcConfigurer {
 //        Register.addViewController("/contact").setViewName("contact");
         Register.addViewController("/about").setViewName("about");
         Register.addViewController("/holidays").setViewName("holidays");
+        Register.addViewController("/dashboard").setViewName("dashboard");
+
 
     }
 
