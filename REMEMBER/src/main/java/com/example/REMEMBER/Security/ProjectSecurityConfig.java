@@ -18,23 +18,35 @@ public class ProjectSecurityConfig {
 
         http.authorizeHttpRequests(requests-> requests
                         .requestMatchers("/dashboard").authenticated()
+                        .requestMatchers("/displayMessages").hasRole("ADMIN")
+                        .requestMatchers("/closeMsg/**").hasRole("ADMIN")
                         .requestMatchers("/","/home").permitAll()
                         .requestMatchers("/holidays/**").permitAll()
                         .requestMatchers("/contact").permitAll()
                         .requestMatchers("/saveMsg").permitAll()
                         .requestMatchers("/courses").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/logout").permitAll()
                         .requestMatchers("/about").permitAll()
                         .requestMatchers("/assets/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll() // Updated H2 console access
-                        .requestMatchers(PathRequest.toH2Console()).permitAll() )
+                        .requestMatchers(PathRequest.toH2Console()).permitAll()
+                       )
+
                 .formLogin(loginconfigurer -> loginconfigurer.loginPage("/login")
                         .defaultSuccessUrl("/dashboard", true)
                         .failureUrl("/login?error=true").permitAll()
-                ).logout(logoutconfigurer -> logoutconfigurer.logoutSuccessUrl("/login?logout=true")
-                        .invalidateHttpSession(true).permitAll())
+                ).logout(logout -> logout
+                        .logoutUrl("/logout") // default
+                        .logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .permitAll()
+                )
+
                 .httpBasic(form->form.disable())
                 .csrf(csrf-> csrf
                         .ignoringRequestMatchers("/saveMsg")
+                        .ignoringRequestMatchers("/logout")
                         .ignoringRequestMatchers("/h2-console/**") // Updated CSRF exemption
                         .ignoringRequestMatchers(PathRequest.toH2Console()))
                 .headers(headers -> headers.frameOptions().sameOrigin()); // Allow H2 console frames
@@ -61,7 +73,7 @@ public class ProjectSecurityConfig {
         UserDetails admin = User.withDefaultPasswordEncoder()
                 .username("admin")
                 .password("12345")
-                .roles("ADMIN", "USER")
+                .roles("ADMIN")
                 .build();
 
         return new InMemoryUserDetailsManager(user, admin);
