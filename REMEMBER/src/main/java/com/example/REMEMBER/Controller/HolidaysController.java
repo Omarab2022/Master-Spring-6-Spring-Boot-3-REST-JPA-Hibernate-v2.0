@@ -2,6 +2,8 @@ package com.example.REMEMBER.Controller;
 
 
 import com.example.REMEMBER.Model.Holiday;
+import com.example.REMEMBER.Repository.HolidaysRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,14 @@ import java.util.stream.Collectors;
 @Controller
 public class HolidaysController {
 
+
+    private final HolidaysRepo holidaysRepo;
+
+
+    @Autowired
+    public HolidaysController(HolidaysRepo holidaysRepo) {
+        this.holidaysRepo = holidaysRepo;
+    }
 
 
 //    this exemple is for @RequestParam
@@ -56,13 +66,8 @@ public class HolidaysController {
             model.addAttribute("federal" , true);
         }
 
-        List<Holiday> holidays = Arrays.asList(
-                new Holiday("Jan 1", "new year'day", Holiday.Type.FESTIVAL),
-                new Holiday("Jan 26", "Republic Day", Holiday.Type.FEDERAL),
-                new Holiday("Feb 14", "Valentine's Day", Holiday.Type.FESTIVAL)
+        List<Holiday>  holidays = holidaysRepo.findAllHolidays();
 
-
-        );
         Holiday.Type[] types = Holiday.Type.values();
         for (Holiday.Type type : types) {
             model.addAttribute(type.toString(),
