@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -29,9 +30,9 @@ public class ContactService {
         contact.setCreatedBy(Constants.ANONYMOUS);
         contact.setCreatedAt(LocalDateTime.now());
 
-        int result = contactRepo.saveContactMesg(contact);
+        Contact savedContact = contactRepo.save(contact);
 
-        if (result > 0) {
+        if (null != savedContact && savedContact.getContactId() > 0) {
             isSaved = true;
         }
 
@@ -40,19 +41,26 @@ public class ContactService {
 
 
     public List<Contact> findMsgsWithOpenStatus(){
-        List<Contact> contactMsgs = contactRepo.findMsgsWithStatus(Constants.OPEN);
+        List<Contact> contactMsgs = contactRepo.findByStatus(Constants.OPEN);
         return contactMsgs;
     }
 
-    public boolean updateMsgStatus(int contactId , String updatedBy){
-
+    public boolean updateMsgStatus(int contactId, String updatedBy) {
         boolean isUpdated = false;
-       int result = contactRepo.updateMsgStatus(contactId, Constants.CLOSE, updatedBy);
 
-       if (result > 0){
-           isUpdated = true;
-       }
-       return isUpdated ;
+        Optional<Contact> contactOptional = contactRepo.findById(contactId);
+
+        if (contactOptional.isPresent()) {
+            Contact contact = contactOptional.get();
+            contact.setStatus(Constants.CLOSE);
+            contact.setUpdatedBy(updatedBy);
+            contact.setUpdatedAt(LocalDateTime.now());
+            contactRepo.save(contact); // persist changes
+            isUpdated = true;
+        }
+
+        return isUpdated;
     }
+
 
 }

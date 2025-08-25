@@ -29,8 +29,6 @@ public class ProjectSecurityConfig {
                         .requestMatchers("/logout").permitAll()
                         .requestMatchers("/about").permitAll()
                         .requestMatchers("/assets/**").permitAll()
-                        .requestMatchers("/h2-console/**").permitAll() // Updated H2 console access
-                        .requestMatchers(PathRequest.toH2Console()).permitAll()
                        )
 
                 .formLogin(loginconfigurer -> loginconfigurer.loginPage("/login")
@@ -47,8 +45,8 @@ public class ProjectSecurityConfig {
                 .csrf(csrf-> csrf
                         .ignoringRequestMatchers("/saveMsg")
                         .ignoringRequestMatchers("/logout")
-                        .ignoringRequestMatchers("/h2-console/**") // Updated CSRF exemption
-                        .ignoringRequestMatchers(PathRequest.toH2Console()))
+
+                        )
                 .headers(headers -> headers.frameOptions().sameOrigin()); // Allow H2 console frames
 
         return http.build();
